@@ -1,7 +1,7 @@
 jGridstart
 ==========
 
-[![Build Status](https://secure.travis-ci.org/wvengen/jGridstart.png)](http://travis-ci.org/wvengen/jGridstart)
+[![Build Status](https://secure.travis-ci.org/biggrid/jGridstart.png)](http://travis-ci.org/biggrid/jGridstart)
 
 jGridstart is a graphical user interface in Java that helps grid end-users to
 request, obtain, install and renew grid certificates in a friendly way.

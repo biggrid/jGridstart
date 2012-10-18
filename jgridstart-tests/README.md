@@ -85,5 +85,5 @@ suite on a given computer, which is explained earlier in this document.
 
 [Testrunner]: #testrunner
 [Maven]: http://maven.apache.org/
-[Travis-CI]: http://travis-ci.org/wvengen/jGridstart
+[Travis-CI]: http://travis-ci.org/biggrid/jGridstart
 

@@ -25,7 +25,7 @@
   <scm>
     <url>https://github.com/biggrid/jGridstart</url>
     <connection>scm:git:https://github.com/biggrid/jGridstart.git</connection>
-    <developerConnection>scm:svn:ssh://git@github.com/biggrid/jGridstart.git</developerConnection>
+    <developerConnection>scm:git:ssh://git@github.com/biggrid/jGridstart.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
 

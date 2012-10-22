@@ -1,0 +1,13 @@
+nl.nikhef.browsers
+nl.nikhef.browsers.exception
+nl.nikhef.jgridstart
+nl.nikhef.jgridstart.ca
+nl.nikhef.jgridstart.cli
+nl.nikhef.jgridstart.gui
+nl.nikhef.jgridstart.gui.util
+nl.nikhef.jgridstart.logging
+nl.nikhef.jgridstart.osutils
+nl.nikhef.jgridstart.passwordcache
+nl.nikhef.jgridstart.util
+nl.nikhef.jgridstart.wrapper
+nl.nikhef.xhtmlrenderer.swing

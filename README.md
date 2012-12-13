@@ -77,7 +77,7 @@ Compiling & developing
 
 To build the jGridstart application, invoke [Maven]:
 
-    mvn package
+    mvn install
 
 This wil compile all modules (except testrunner and jgridstart-tests, as they
 are not completely finished not required to use jGridstart), run tests, and
@@ -98,6 +98,9 @@ During development it may be useful to run jGridstart without packaging it.
 `-screenshots <some_dir>` will run jGridstart in an automated mode, taking
 screenshots at various places.
 
+Generally, one would expect `mvn package` to suffice to build a project, but
+because of the way ProGuard is used in `jgridstart-small` this does not work at
+the moment.
 
 To use this in the [Eclipse] integrated development environment (with
 [m2eclipse]), I'd suggest to create a new workspace, and then select `File`,

@@ -99,6 +99,10 @@ class BrowsersUnix extends BrowsersCommon {
      * that we find the actual browser pointed to by Debian's alternatives.
      */
     private String normaliseBrowserPath(String path) {
+	if (path==null)	{
+	    logger.finer("Not normalising browser path (is null)");
+	    return null;
+	}
 	logger.finer("Normalising browser path: "+path);
 	// Debian's sensible-browser is a wrapper for one of the others
 	if (path.equals("sensible-browser") || path.endsWith("/sensible-browser")) {
@@ -233,16 +237,19 @@ class BrowsersUnix extends BrowsersCommon {
 		else if (line.trim().startsWith("["))
 		    inGeneralSection = false;
 		// catch default browser in general section
-		if (inGeneralSection && line.trim().toLowerCase().startsWith("BrowserApplication")) {
+		if (inGeneralSection && line.trim().toLowerCase().startsWith("browserapplication")) {
 		    final Pattern pat = Pattern.compile("^\\s*BrowserApplication(\\[.*?\\])?\\s*=\\s*(.*?)\\s*$");
-		    String browser = pat.matcher(line).group(2);
-		    // empty means default browser = get from mime-type
-		    // TODO implement mime-type parsing ... but let's wait for users to actually complain before investing more time
-		    if (browser == "") return "konqueror";
-		    // custom entry begins with exclamation mark; not sure if this is always the case
-		    if (browser.startsWith("!")) browser = browser.substring(1);
-		    logger.fine("Default KDE browser: "+browser);
-		    return browser;
+		    Matcher matcher = pat.matcher(line);
+		    if (matcher.matches())	{
+			String browser = matcher.group(2);
+			// empty means default browser = get from mime-type
+			// TODO implement mime-type parsing ... but let's wait for users to actually complain before investing more time
+			if (browser == "") return "konqueror";
+			// custom entry begins with exclamation mark; not sure if this is always the case
+			if (browser.startsWith("!")) browser = browser.substring(1);
+			logger.fine("Default KDE browser: "+browser);
+			return browser;
+		    }
 		}
 	    }
 	} catch (IOException e) { }

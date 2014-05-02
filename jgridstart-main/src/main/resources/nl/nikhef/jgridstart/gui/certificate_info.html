@@ -26,11 +26,11 @@
 	  You have <span c="${valid.notafter.remaining}"/> days left to <a href="action:renew">renew</a> your certificate.</p>
 
 	<p class="info-bad" if="${valid} and ${valid.notafter.warning} and !${renewal.childstarted} and !${ca_supported}">
-	  Your certificate will expire within <span c="${valid.notafter.remaining}"/> days. To renew, please
+	  Your certificate will expire within <span c="${valid.notafter.remaining}"/> day(s). To renew, please
 	  contact the issuer.</p>
 
 	<p class="info-ok" if="${valid} and ${valid.notafter.warning} and ${renewal.childstarted}">
-      Your certificate will expire within <span c="${valid.notafter.remaining}"/> days.</p>
+      Your certificate will expire within <span c="${valid.notafter.remaining}"/> day(s).</p>
 	  
 	<p class="info-bad" if="${cert} and !${valid}">
 	  This certificate is expired, you can no longer use it.</p>

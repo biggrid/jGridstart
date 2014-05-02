@@ -102,7 +102,7 @@ public class Organisation extends Properties {
 	Properties allProps = new Properties();
 	try {
 	    allProps.load(getFile());
-	} catch (IOException e) {
+	} catch (Exception e) {
 	    // fallback to internal copy
 	    exc = e;
 	    try {
@@ -110,7 +110,7 @@ public class Organisation extends Properties {
 		allProps.load(Organisation.class.getResourceAsStream("/resources/conf/cert_signup.conf"));
 		excMsg = "Could not load organisations from remote location, falling back to default.\n" +
 			"You can probably just continue, but if your organisation is not listed try again later.";
-	    } catch (IOException e2) {
+	    } catch (Exception e2) {
 		excMsg = "Could not load organisations, and fallback failed as well."; 
 	    }
 	}
@@ -187,32 +187,45 @@ public class Organisation extends Properties {
      * falls back to file supplied with distribution. 
      */
     protected static InputStream getFile() throws IOException {
-	if (System.getProperty("jgridstart.org.href")!=null) {
+	// URL or name of organisations file
+	String orghref=System.getProperty("jgridstart.org.href");
+
+	if (orghref!=null) {
 	    URL fileurl = null;
-	    URL baseurl = null;
-	    try {
-		// Use reflection to call jnlp services to make it work without java web start too
-		//BasicService basic = (BasicService)ServiceManager.lookup("javax.jnlp.BasicService");
-		Class<?> serviceManagerCls = Class.forName("javax.jnlp.ServiceManager");
-		Method lookup = serviceManagerCls.getDeclaredMethod("lookup", new Class[]{ String.class });
-		Object basic = lookup.invoke(serviceManagerCls, new Object[]{"javax.jnlp.BasicService"});
-		//URL baseurl = basic.getCodeBase();
-		Class<?> basicCls = Class.forName("javax.jnlp.BasicService");
-		Method getCodeBase = basicCls.getDeclaredMethod("getCodeBase", new Class[]{});
-		baseurl = (URL)getCodeBase.invoke(basic, new Object[]{});
-		fileurl = new URL(baseurl, System.getProperty("jgridstart.org.href"));
-	    } catch(Exception e) {
-		// maybe we're running wrapped with java property set but no javax.jnlp service
-		if (System.getProperty("jgridstart.wrapper.codebase")!=null) {
-		    fileurl = new URL(System.getProperty("jgridstart.wrapper.codebase") +
-			    "/" + System.getProperty("jgridstart.org.href"));
-		} else {
-		    // otherwise full url is the only option
-		    fileurl = new URL(System.getProperty("jgridstart.org.href"));
+	    // In case we use a full URL use it as is
+	    if (orghref.startsWith("https://") || orghref.startsWith("http://"))
+	    {
+		fileurl = new URL(orghref);
+	    } else {
+		// Not a full URL, need prepend with CodeBase
+		URL baseurl = null;
+		try {
+		    // Use reflection to call jnlp services to make it work without java web start too
+		    //BasicService basic = (BasicService)ServiceManager.lookup("javax.jnlp.BasicService");
+		    Class<?> serviceManagerCls = Class.forName("javax.jnlp.ServiceManager");
+		    Method lookup = serviceManagerCls.getDeclaredMethod("lookup", new Class[]{ String.class });
+		    Object basic = lookup.invoke(serviceManagerCls, new Object[]{"javax.jnlp.BasicService"});
+		    //URL baseurl = basic.getCodeBase();
+		    Class<?> basicCls = Class.forName("javax.jnlp.BasicService");
+		    Method getCodeBase = basicCls.getDeclaredMethod("getCodeBase", new Class[]{});
+		    baseurl = (URL)getCodeBase.invoke(basic, new Object[]{});
+		    fileurl = new URL(baseurl, orghref);
+		} catch(Exception e) {
+		    // maybe we're running wrapped with java property set but no javax.jnlp service
+		    String base=System.getProperty("jgridstart.wrapper.codebase");
+		    if (base!=null) {
+			if (base.endsWith("/"))
+			    fileurl = new URL(base + orghref);
+			else
+			    fileurl = new URL(base + "/" + orghref);
+		    } else {
+			// otherwise full url is the only option
+			fileurl = new URL(orghref);
+		    }
 		}
+		if (baseurl!=null && !fileurl.toExternalForm().startsWith(baseurl.toExternalForm()))
+		    throw new IOException("Organisation file must reside on same server as application.");
 	    }
-	    if (baseurl!=null && !fileurl.toExternalForm().startsWith(baseurl.toExternalForm()))
-	    	throw new IOException("Organisation file must reside on same server as application.");
 	    return fileurl.openStream();
 	}
 	// fallback to local copy

@@ -87,7 +87,19 @@ public class CertificateStoreWithDefault extends CertificateStore {
     public CertificateStoreWithDefault(File path) {
 	super(path);
     }
-    
+   
+    /** Return the default path.
+     * <p>
+     * The default certificate is located in {@code ~/.globus}
+     * (or the platform's equivalent).
+     * <p>
+     * 
+     * @return Path or {@code null} if not present
+     */
+    public String getPath() {
+	return path.getPath();
+    }
+
     /** {@inheritDoc}
      * <p>
      * Also, the default certificate is loaded from the store's path when it is

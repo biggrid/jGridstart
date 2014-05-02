@@ -38,6 +38,7 @@ public class PEMWriter extends org.bouncycastle.openssl.PEMWriter {
      */
     @Override
     public void writeObject(Object obj, String algorithm, char[] password, SecureRandom random) throws IOException {
+	// Close for others, keep writable for us until we are done
 	FileUtils.chmod(f, true, true, false, true);
 	super.writeObject(obj, algorithm, password, random);
     }
@@ -94,6 +95,7 @@ public class PEMWriter extends org.bouncycastle.openssl.PEMWriter {
 	    w.writeObject(obj, msg);
 	} finally {
 	    w.close();
+	    FileUtils.chmod(f, true, false, false, true);
 	}
     }
     
@@ -112,6 +114,7 @@ public class PEMWriter extends org.bouncycastle.openssl.PEMWriter {
 	    });
 	} finally {
 	    w.close();
+	    FileUtils.chmod(f, true, false, false, true);
 	}
     }
 

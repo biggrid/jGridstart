@@ -10,6 +10,8 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JLabel;
+import javax.swing.SwingConstants;
 import javax.swing.KeyStroke;
 import nl.nikhef.jgridstart.CertificatePair;
 import nl.nikhef.jgridstart.gui.util.CertificateFileChooser;
@@ -47,13 +49,20 @@ public class ActionExport extends CertificateAction {
 	final JDialog dlg = new JDialog(parent,
 		"Export the currently selected certificate");
 
-	final JPanel hpane = new JPanel();
-	hpane.setLayout(new BoxLayout(hpane, BoxLayout.X_AXIS));
+	final JPanel hpane1 = new JPanel();
+	final JPanel hpane2 = new JPanel();
+	hpane1.setLayout(new BoxLayout(hpane1, BoxLayout.X_AXIS));
+	hpane2.setLayout(new BoxLayout(hpane2, BoxLayout.X_AXIS));
+	final JLabel text = new JLabel(
+	    "<html><h4>NOTE: this <em>also</em> exports " +
+	    "the <em>private</em> key. KEEP IT SAFE!<h4></html>");
 	final JCheckBox check = new JCheckBox("Use private key password for the exported file");
 	check.setMnemonic('p');
 	check.setSelected(true);
-	hpane.add(check);
-	hpane.add(Box.createHorizontalGlue());
+	hpane1.add(text);
+	hpane1.add(Box.createHorizontalGlue());
+	hpane2.add(check);
+	hpane2.add(Box.createHorizontalGlue());
 	
 	if (filename!=null) {
 	    chooser.setSelectedFile(new File(filename));
@@ -68,7 +77,7 @@ public class ActionExport extends CertificateAction {
         		    // request password if wanted
         		    if (!check.isSelected()) {
         			pw = PasswordCache.getInstance().getForEncrypt(
-        				"PKCS#12 key password for "+f.getName(),
+        				"Enter export password for <em>private</em> key in "+f.getName(),
         				f.getCanonicalPath());
         		    }
         		    doExport(e, f, pw);
@@ -81,7 +90,8 @@ public class ActionExport extends CertificateAction {
         	    }
 		}
 	);
-	pane.add(hpane);
+	pane.add(hpane1);
+	pane.add(hpane2);
 	
 	dlg.setName("jgridstart-export-file-dialog");
 	dlg.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);

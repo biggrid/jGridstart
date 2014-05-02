@@ -212,6 +212,8 @@ public class CertificateStore extends ArrayListModel<CertificatePair> implements
 	    throw new IOException("Could not create new certificate directory: " +
 		    dst + ".\n" +
 		    "Please check permissions, disk space and quota.");
+	// Make directory only rwx for the owner
+	FileUtils.chmod(dst,true,true,true,true);
 	return dst;
     }
     
@@ -315,6 +317,7 @@ public class CertificateStore extends ArrayListModel<CertificatePair> implements
 	return delete(indexOf(cert));
     }
 
+
     /** Import a PKCS#12 or PEM file as a new entry
      * <p>
      * A new {@linkplain CertificatePair} is created from the imported file, and
@@ -323,13 +326,28 @@ public class CertificateStore extends ArrayListModel<CertificatePair> implements
      * @param src File to import from
      * @param dstpw password to use for private key storage, or {@code null} to use the
      *          same password as the import password
+     * @param askNewPassword whether to ask for a new password for the imported
+     * key
      * @return Newly created CertificatePair
      */
-    public CertificatePair importFrom(File src, char[] dstpw) throws IOException, GeneralSecurityException, CertificateCheckException {
+    public CertificatePair importFrom(File src, char[] dstpw, boolean askNewPassword) throws IOException, GeneralSecurityException, CertificateCheckException {
 	File dst = newItem();
+	char[] importpw=null;
+
+	// request password if wanted
+	if (askNewPassword) {
+	    importpw = PasswordCache.getInstance().getForEncrypt(
+		"Enter <em>new</em> password for imported <em>private</em> key.",
+		dst.getCanonicalPath());
+	} else
+	    importpw = dstpw;
+
 	// import
 	try {
-	    CertificatePair cert = CertificatePair.importFrom(src, dst, dstpw);
+	    CertificatePair cert = CertificatePair.importFrom(src, dst, importpw);
+	    if (certificateInStore(cert))
+		logger.warning("Cert for "+cert.toString()+" with serial 0x"+
+		    cert.getProperty("cert.serial")+" already exists");
 	    // rename directory to one that matches the certificate
 	    moveProper(cert);
 	    add(cert);
@@ -349,10 +367,32 @@ public class CertificateStore extends ArrayListModel<CertificatePair> implements
     /** Import a PKCS#12 or PEM file as a new entry
      * 
      * @param src File to import from
-     * @see #importFrom(File, char[])
+     * @param askNewPassword whether to ask for a new password for the imported
+     * key
+     * @see #importFrom(File, char[], boolean)
+     */
+    public CertificatePair importFrom(File src, boolean askNewPassword) throws IOException, GeneralSecurityException, CertificateCheckException {
+	return importFrom(src, null, askNewPassword);
+    }
+
+    /** Import a PKCS#12 or PEM file as a new entry
+     * 
+     * @param src File to import from
+     * @param dstpw password to use for private key storage, or {@code null} to use the
+     *          same password as the import password
+     * @see #importFrom(File, char[], boolean)
+     */
+    public CertificatePair importFrom(File src, char[] dstpw) throws IOException, GeneralSecurityException, CertificateCheckException {
+	return importFrom(src, dstpw, false);
+    }
+
+    /** Import a PKCS#12 or PEM file as a new entry
+     * 
+     * @param src File to import from
+     * @see #importFrom(File, char[], boolean)
      */
     public CertificatePair importFrom(File src) throws IOException, GeneralSecurityException, CertificateCheckException {
-	return importFrom(src, null);
+	return importFrom(src, null, false);
     }
 
     
@@ -437,5 +477,17 @@ public class CertificateStore extends ArrayListModel<CertificatePair> implements
      */
     public CertificatePair generateRenewal(CertificatePair oldCert) throws PasswordCancelledException, IOException, GeneralSecurityException, CAException, CertificateCheckException {
 	return generateRenewal(oldCert, null);
+    }
+
+    /** Checks whether given certificate is already in store
+     *
+     */
+    public boolean certificateInStore(CertificatePair newCert) {
+	for (CertificatePair cert: this) {
+	    if (newCert.equals(cert))
+		return true;
+	}
+	// not found
+	return false;
     }
 }

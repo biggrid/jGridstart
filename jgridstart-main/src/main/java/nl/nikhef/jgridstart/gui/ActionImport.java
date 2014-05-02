@@ -63,16 +63,7 @@ public class ActionImport extends AbstractAction {
         	    public void actionPerformed(ActionEvent e) {
         		try {
         		    File f = chooser.getSelectedFile();
-        		    char[] pw = null;
-        		    // request password if wanted
-        		    if (!check.isSelected()) {
-        			pw = PasswordCache.getInstance().getForEncrypt(
-        				"New private key password "+f.getName(),
-        				f.getCanonicalPath());
-        		    }
-        		    doImport(e, f, pw);
-        		} catch (PasswordCancelledException e1) {
-        		    /* do nothing */
+			    doImport(e, f, !check.isSelected());
         		} catch (Exception e1) {
         		    ErrorMessage.error(parent, "Import error", e1);
         		}
@@ -94,11 +85,11 @@ public class ActionImport extends AbstractAction {
      * @param f File to import
      * @param pw password to encrypt new private key with, or {@code null} to use same password as input file
      */
-    public void doImport(ActionEvent e, File f, char[] pw) {
+    public void doImport(ActionEvent e, File f, boolean askNewPassword) {
 	logger.info("Importing certificate: "+f);
 	
 	try {
-	    CertificatePair cert = store.importFrom(f, pw);
+	    CertificatePair cert = store.importFrom(f, askNewPassword);
 	    selection.setSelection(store.indexOf(cert));
 	} catch (PasswordCancelledException e1) {
 	    // do nothing

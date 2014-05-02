@@ -27,13 +27,17 @@ var deployJNLP = {
 				// otherwise show message on installation
 				deployJava.returnPage = document.location;
 				var msg = 
-					"<h2>Java required</h2>"
-					+ "<p>You need to install Java before you can run "+this.product+".</p>"
-					+ "<div><a href='javascript:deployJava.installLatestJRE()'><img src='"+this.resolveUrl('javabutton.png')+"' alt='Install Java'/></a></div>"
-					+ "<div class='runanyway'>If you do have Java installed, you can still "
-					+ "<a href='"+this.getJNLP()+"' onclick='deployJNLP.launch(); return false'>launch "+this.product+"</a>.</div>"
+					"<h2>Java not detected</h2>"
+					+ "<P>If you do <B>not</B> have Java installed, install it before you can run "+this.product+"."
+					+ "<div><a href='javascript:deployJava.installLatestJRE()'>"
+					+ "<img src='"+this.resolveUrl('javabutton.png')+"' alt='Install Java'/></a></div>"
+					+ "<hr>"
+					+ "<P>If you <B>do</B> have Java installed, "
+					+ "<div><a href='"+this.getJNLP()+"' onclick='deployJNLP.launch(); return false'>"
+					+ "<img src='"+this.resolveUrl('launchbutton.png')+"' alt='Launch now'/></a></div>"
 					+ "<div class='runanyway'>When that fails you might be able to manually run the command:"
 					+ "<span class='cmd'><br/>javaws&nbsp;"+this.getJNLP()+"</span></div>";
+
 				TINY.box.show(msg, false, 0, 0, false);
 			}
 		},

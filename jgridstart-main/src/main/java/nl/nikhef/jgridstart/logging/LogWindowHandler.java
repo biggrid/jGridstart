@@ -28,8 +28,13 @@ public class LogWindowHandler extends Handler {
      */
     public LogWindowHandler() {
 	configure();
-	if (window == null)
-	    window = new LogWindow("Logging window", 550, 300);
+	if (window == null) {
+	    try {
+		window = new LogWindow("Logging window", 550, 300);
+	    } catch(Exception e)    {
+		System.err.println("Could not create logwindow");
+	    }
+	}
 	handler = this;
     }
 
@@ -76,7 +81,7 @@ public class LogWindowHandler extends Handler {
 	    c = Class.forName(filterName);
 	    f = (Filter)c.newInstance();
 	} catch (Exception e) {
-	    System.out.println("There was a problem to load the filter class: "
+	    System.err.println("There was a problem to load the filter class: "
 		    + filterName);
 	}
 	return f;

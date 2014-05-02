@@ -10,11 +10,22 @@ import nl.nikhef.jgridstart.logging.LogHelper;
 import nl.nikhef.jgridstart.logging.LogWindowHandler;
 import nl.nikhef.jgridstart.util.GeneralUtils;
 
+import sun.awt.AppContext;
+import sun.awt.SunToolkit;
+
 /** Graphical user-interface main program */
 public class Main {
 
     // setup logging
+    // First need to create a new AppContext(). This is necessary since 1.7.0_25
+    // See https://grid.sara.nl/issues/view.php?id=4121 and
+    // http://bugs.java.com/view_bug.do?bug_id=8017776
+    // We implement the workaround mentioned in
+    // http://stackoverflow.com/questions/17275259/nullpointerexception-in-invokelater-while-running-through-java-webstart
     static {
+	if(sun.awt.AppContext.getAppContext() == null){
+	    SunToolkit.createNewAppContext();
+	}
 	LogHelper.setupLogging(false);
     }
     static private Logger logger = Logger.getLogger("nl.nikhef.jgridstart.gui");

@@ -65,9 +65,14 @@ public class CertificateCheckTest extends CertificateBaseTest {
 	String sep = System.getProperty("line.separator");
 	int startpos = pem.toString().indexOf(sep+sep)+2;
 	int endpos = pem.toString().indexOf("-----END");
+	boolean notwritable=(f.canWrite()==false);
 	for (int i=startpos; i<endpos; i+=18)
 	    if (pem[i]>'A' && pem[i]<'z') pem[i]++;
+	if (notwritable)
+	    f.setWritable(true);
 	FileUtils.writeFile(f, pem.toString());
+	if (notwritable)
+	    f.setWritable(false);
     }
 
     

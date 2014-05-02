@@ -4,7 +4,11 @@
 	<link rel="stylesheet" type="text/css" href="style.css"/>
 </head>
 <body id="infopane">
-	<h1>Certificate of <span c="${subject.cn}"/></h1>
+	<h1 if="!${subject.cn}">Incomplete certificate</h1>
+	<h1 if="${subject.cn}">Certificate of 
+	    <span if="${cert_is_default}" c="${subject.cn} (default certificate)"/>
+	    <span if="!${cert_is_default}" c="${subject.cn}"/>
+	</h1>
 
 	<p class="info-bad" if="!${cert} and !${request}">
       This certificate is incomplete, you might consider removing it manually.</p>
@@ -54,7 +58,7 @@
 		</tr>
 		<tr if="${cert.serial}">
 			<th class="serial"><label>Serial</label></th>
-			<td class="serial" c="${cert.serial}"></td>
+			<td class="serial" c="0x${cert.serial}"></td>
 		</tr>
 		<tr>
 			<th class="validity"><label>Valid</label></th>
@@ -81,8 +85,8 @@
 		<tr>
 			<td colspan="2" class="showdetails legend">
 				<a href="action:showdetails" class="shown-${(${view.showdetails})}">
-					<img src='triangle-right.png' widht='13' height='13' alt='>' if="!${view.showdetails}"/>
-					<img src='triangle-down.png' widht='13' height='13' alt='v' if="${view.showdetails}"/>
+					<img src='triangle-right.png' width='13' height='13' alt='>' if="!${view.showdetails}"/>
+					<img src='triangle-down.png' width='13' height='13' alt='v' if="${view.showdetails}"/>
 					Details
 				</a>
 			</td>
@@ -114,9 +118,15 @@
 				<span if="${usage.emailprotection}" title="usable for signing and encrypting emails">Email protection,</span>
 			</td>
 		</tr>
-		<tr class="details" if="${view.showdetails} and ${path}">
+		<tr class="details" if="${view.showdetails} and (${cert_is_default} or ${path})">
 			<th class="location"><label>Location</label></th>
-			<td class="location" c="${path}"/>
+<!--			<td class="location" if="!${cert_is_default}" c="${path}"/>-->
+			<td class="location" if="${cert_is_default}" c="${default_path}" />
+			<td class="location" if="!${cert_is_default}" c="${path}" />
+		</tr>
+		<tr class="details" if="${view.showdetails} and (${cert_is_default} and ${path} and (${path}!=${default_path}))">
+			<td class="location" />
+			<td class="location" c="${path}" />
 		</tr>
 	</table>
 	</form>

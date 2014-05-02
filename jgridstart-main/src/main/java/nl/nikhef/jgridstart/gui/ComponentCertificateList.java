@@ -71,17 +71,24 @@ public class ComponentCertificateList extends JList {
 		dflCert = ((CertificateStoreWithDefault)getModel()).getDefault();
 	    } catch (IOException e) { }
 	    if ( cert.equals(dflCert) )
-		dfl += "&nbsp;<b color='#ffcc00'>&#x2730</b>";
+//		dfl += "&nbsp;<b color='#0000cc'>&#x2730</b>"; // SHADOWED WHITE STAR
+		dfl += "&nbsp;<b color='#0000cc'>&#x272F</b>"; // PINWHEEL STAR
 	    // organisation
 	    Organisation org = Organisation.getFromCertificate(cert);
-	    if (org!=null) line1 += org.getProperty("name.full"); // TODO full name, incl. O if OU
-	    else line1 += cert.getProperty("org");
+	    if (org!=null && org.getProperty("name.full")!=null)
+		line1 += org.getProperty("name.full"); // TODO full name, incl. O if OU
+	    else {
+		if (cert.getProperty("org")!=null)
+		    line1 += cert.getProperty("org");
+		else
+		    line1 += "Unknown";
+	    }
 	    // add serial number to 3rd line, if any
 	    String serial = cert.getProperty("cert.serial");
 	    if (serial!=null) {
 		if (serial.length() > maxSerialLen)
 		    serial = "&#x2026;"+serial.substring(serial.length()-maxSerialLen+2);
-		line2 += " <span color='#888888'>(#"+serial+ ")</span>";
+		line2 += " <span color='#888888'>(0x"+serial+ ")</span>";
 	    }
 	    // set html contents
 	    String s =

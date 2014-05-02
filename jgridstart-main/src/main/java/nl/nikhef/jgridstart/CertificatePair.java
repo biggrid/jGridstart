@@ -212,7 +212,8 @@ public class CertificatePair extends Properties implements ItemSelectable {
 		else return "true";
 	    if (key.equals("cert.serial"))
 		if (getCertificate()==null) return null;
-		else return getCertificate().getSerialNumber().toString();
+		else return
+		    getCertificate().getSerialNumber().toString(16).toUpperCase();
 	    if (key.equals("request"))
 		if (!getCSRFile().exists()) return null;
 		else return "true";
@@ -550,7 +551,7 @@ public class CertificatePair extends Properties implements ItemSelectable {
 	    } else {
 		logger.fine("Discarding unrecognised object in PEM file "+src.getName()+": "+o);
 	    }
-	    // we only copied files, no load it
+	    // we only copied files, now load it
 	    load(path);
 	}
 
@@ -577,16 +578,20 @@ public class CertificatePair extends Properties implements ItemSelectable {
 	boolean loaded = false;
 	for (int i=0; i<3; i++) {
 	    FileInputStream in = new FileInputStream(src);
+	    String srcPath=null;
 	    try {
-		char[] pw = pwcache.getForDecrypt(storename, src.getCanonicalPath());
+		srcPath=src.getCanonicalPath();
+		char[] pw = pwcache.getForDecrypt(storename, srcPath);
 		store.load(in, pw);
 		loaded = true;
 		if (dstpw==null) dstpw = pw;
 	    } catch(IOException e) {
 		if (PasswordCache.isPasswordWrongException(e)) {
 		    // if bad password, invalidate and ask again
-		    pwcache.invalidate(src.getCanonicalPath());
-		} else throw e;
+		    logger.finer("Given or cached password for "+srcPath+" is invalid");
+		    pwcache.invalidate(srcPath);
+		} else
+		    throw e;
 	    } finally {
 		in.close();
 	    }
@@ -619,7 +624,10 @@ public class CertificatePair extends Properties implements ItemSelectable {
 		    // we want only the user certificate, which is the first one
 		    // TODO check it really is an X509Certificate
 		    cert = (X509Certificate) chain[0];
-		    PEMWriter.writeObject(getCertFile(), cert);
+		    File certfile=getCertFile();
+		    // Close certfile for extra security
+		    FileUtils.chmod(certfile,true,true,false,true);
+		    PEMWriter.writeObject(certfile, cert);
 		    // we're done!
 		    return;
 		}
@@ -672,6 +680,10 @@ public class CertificatePair extends Properties implements ItemSelectable {
 	    throw new NullPointerException("Please supply a filename to export to");
 	String ext = dst.getName().toLowerCase();
 	ext = ext.substring(ext.lastIndexOf('.')+1);
+
+	// Reset all flags for everyone, then make it readable/writable for
+	// owner only. After writing we will make it read-only
+	FileUtils.chmod(dst, true, true, false, true);
 	
 	if (ext.equals("p12") || ext.equals("pfx")) {
 	    // need password
@@ -681,7 +693,9 @@ public class CertificatePair extends Properties implements ItemSelectable {
 		// and retrieve
 		boolean oldAsk = PasswordCache.getInstance().setAlwaysAskForEncrypt(false);
 		try {
-		    pw = PasswordCache.getInstance().getForEncrypt("private key", getKeyFile().getCanonicalPath());
+		    pw = PasswordCache.getInstance().getForEncrypt(
+			    "Enter export password for PKCS#12 file "+dst.getName(),
+			    getKeyFile().getCanonicalPath());
 		} finally {
 		    PasswordCache.getInstance().setAlwaysAskForEncrypt(oldAsk);
 		}
@@ -693,6 +707,8 @@ public class CertificatePair extends Properties implements ItemSelectable {
 	} else {
 	    throw new IOException("Cannot determine format to export to, unknown file extension: "+ext);
 	}
+	// Now make it read-only
+	FileUtils.chmod(dst, true, false, false, true);
     }
     
     /** Export the certificate and private key to a file using private key password.
@@ -828,6 +844,7 @@ public class CertificatePair extends Properties implements ItemSelectable {
 	});
 
 	// Generate new key pair
+//	KeyPairGenerator keygen = KeyPairGenerator.getInstance(keyAlgName,"BC");
 	KeyPairGenerator keygen = KeyPairGenerator.getInstance(keyAlgName);
 	keygen.initialize(keysize);
 	KeyPair keyPair = keygen.genKeyPair();
@@ -848,6 +865,9 @@ public class CertificatePair extends Properties implements ItemSelectable {
 	    PEMWriter.writeObject(cert.getKeyFile(), privKey, "new certificate's private key");
 	else
 	    PEMWriter.writeObject(cert.getKeyFile(), privKey, pw);
+
+	// make it read-only
+	FileUtils.chmod(cert.getKeyFile(), true, false, false, true);
 	
 	// TODO check
 	//cert.check(true);
@@ -905,7 +925,10 @@ public class CertificatePair extends Properties implements ItemSelectable {
 	cert = getCA().downloadCertificate(getCSR(), this);
 	if (cert!=null) {
 	    setProperty("request.processed", Boolean.toString(true));
-	    PEMWriter.writeObject(getCertFile(), cert);
+	    File certfile=getCertFile();
+	    // Close certfile for extra security
+	    FileUtils.chmod(certfile,true,true,false,true);
+	    PEMWriter.writeObject(certfile, cert);
 	    notifyChanged();
 	}
 	// TODO what when cert is null, throw Exception; can downloadCertificate() return null anyway?

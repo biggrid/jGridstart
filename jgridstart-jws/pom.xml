@@ -5,7 +5,7 @@
   <!-- package information -->
   <groupId>nl.nikhef.jgridstart</groupId>
   <artifactId>jgridstart-jws</artifactId>
-  <version>1.13</version>
+  <version>1.14</version>
   <name>jGridstart application (java web start)</name>
   <url>http://jgridstart.nikhef.nl/</url>
   <description>Java Web Start version of jGridstart</description>
@@ -22,7 +22,7 @@
     <dependency>
       <groupId>nl.nikhef.jgridstart</groupId>
       <artifactId>jgridstart-wrapper</artifactId>
-      <version>1.13</version>
+      <version>1.14</version>
     </dependency>
   </dependencies>
 
@@ -52,7 +52,8 @@
             <includes><include>nl.nikhef.jgridstart:jgridstart-wrapper</include></includes>
           </dependencies>
           <sign>
-            <keystore>${project.build.directory}/keystore</keystore>
+<!--        
+	    <keystore>${project.build.directory}/keystore</keystore>
             <keypass>123password</keypass>
             <storepass>123password</storepass>
             <storetype>jks</storetype>
@@ -65,6 +66,11 @@
               <delete>true</delete>
               <gen>true</gen>
             </keystoreConfig>
+-->
+	    <keystore>${codesigning.keystore}</keystore>
+	    <storetype>${codesigning.storetype}</storetype>
+	    <storepass>${codesigning.storepass}</storepass>
+	    <alias>${codesigning.alias}</alias>
           </sign>
 	</configuration>
       </plugin>

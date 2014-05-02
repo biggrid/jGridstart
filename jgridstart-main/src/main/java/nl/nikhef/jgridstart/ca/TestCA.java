@@ -42,7 +42,7 @@ public class TestCA implements CA {
     /** Create new TestCA */
     public TestCA() throws NoSuchAlgorithmException, KeyManagementException {
 	if (base==null) {
-	    base = "http://www.nikhef.nl/~wvengen/testca/";
+	    base = "http://www.nikhef.nl/~msalle/testca/";
 	    System.setProperty("jgridstart.ca.base", base);
 	}
 	if (baseCaCert==null) {
@@ -50,7 +50,7 @@ public class TestCA implements CA {
 	    System.setProperty("jgridstart.ca.base.cacert", baseCaCert);
 	}
 	if (caDN==null) {
-	    caDN = "C=NL, ST=NH, L=Amsterdam, O=ChangeMeOrg, CN=changeme, emailAddress=mail@example.org";
+	    caDN = "C=NL, ST=NH, L=Amsterdam, O=Nikhef Test, CN=Nikhef Test CA, emailAddress=msalle@nikhef.nl";
 	    System.setProperty("jgridstart.ca.dn", caDN);
 	}
     }

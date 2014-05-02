@@ -203,16 +203,18 @@ public class PasswordCache {
 	pane.setMessageType(JOptionPane.PLAIN_MESSAGE);
 	pane.setOptionType(JOptionPane.OK_CANCEL_OPTION);
 	msg = msg.replace("\n", "<br>");
-	JLabel lbl1 = new JLabel("<html><body>Enter password for saving "+msg+".</body></html>");
+	JLabel lbl1 = new JLabel("<html><body>"+msg+"</body></html>");
 	JLabel lbl2 = new JLabel("Please enter the same password and avoid mistakes.");
-	JLabel lbl3 = new JLabel("<html><body><i>passwords don't match, try again.</i></body></html>");
+	JLabel lbl3 = new JLabel("<html><body><i>passwords do not match, try again.</i></body></html>");
+	JLabel lbl4 = new JLabel("<html><body><i>password cannot be empty, try again.</i></body></html>");
 	final JPasswordField pass1 = new JPasswordField(25);
 	final JPasswordField pass2 = new JPasswordField(25);
 	lbl3.setVisible(false);
+	lbl4.setVisible(false);
 	optionPaneSetFocus(pass1);
 	do {
 	    logger.fine("Requesting encryption password for "+loc);
-	    pane.setMessage(new Object[] {lbl1, lbl2, lbl3, pass1, pass2});
+	    pane.setMessage(new Object[] {lbl1, lbl2, lbl3, lbl4, pass1, pass2});
 	    JDialog dialog = pane.createDialog(parent, "Enter password");
 	    dialog.setName("jgridstart-password-entry-encrypt");
 	    dialog.pack();
@@ -224,8 +226,13 @@ public class PasswordCache {
 		logger.fine("Encryption password request cancelled for "+loc);
 		throw new PasswordCancelledException();
 	    }
-	    lbl3.setVisible(true);
-	} while (!Arrays.equals(pass1.getPassword(), pass2.getPassword())); 
+	    // If password is empty prompt that one, otherwise they didn't match
+	    if (pass1.getPassword().length==0)
+		lbl4.setVisible(true);
+	    else
+		lbl3.setVisible(true);
+	} while (!Arrays.equals(pass1.getPassword(), pass2.getPassword()) ||
+	         pass1.getPassword().length==0); 
 	// store password and zero out for a little security
 	Arrays.fill(pass2.getPassword(), '\0');
 	char[] pw1 = pass1.getPassword();

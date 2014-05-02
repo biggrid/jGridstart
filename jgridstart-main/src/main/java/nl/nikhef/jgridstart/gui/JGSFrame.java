@@ -379,6 +379,15 @@ public class JGSFrame extends JFrame {
 	if (c!=null) {
 	    // certificate selected, show info and add buttons according to state
 	    certInfoPane.setData(c);
+	    try {
+//		if (store.getDefault()==c)  {
+		if (store.getDefault().equals(c))  {
+		    c.setProperty("cert_is_default","true");
+		    c.setProperty("default_path",store.getPath());
+		}
+		else
+		    c.setProperty("cert_is_default","false");
+	    } catch(IOException e1) { /* leave it, too bad */ }
 	    certInfoPane.setDocument(getClass().getResource("certificate_info.html").toExternalForm());
 	} else {
 	    // no certificate selected, present signup page

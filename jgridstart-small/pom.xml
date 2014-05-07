@@ -5,7 +5,7 @@
   <!-- package information -->
   <groupId>nl.nikhef.jgridstart</groupId>
   <artifactId>jgridstart-small</artifactId>
-  <version>1.14</version>
+  <version>1.15</version>
   <name>jGridstart application (compressed)</name>
   <url>http://jgridstart.nikhef.nl/</url>
   <description>Compressed version of jGridstart</description>
@@ -27,7 +27,7 @@
     <dependency>
       <groupId>nl.nikhef.jgridstart</groupId>
       <artifactId>jgridstart-main</artifactId>
-      <version>1.14</version>
+      <version>1.15</version>
     </dependency>
   </dependencies>
 
@@ -129,7 +129,7 @@
           <injar>${project.build.finalName}.jar</injar>
           <outjar>${project.build.finalName}.jar</outjar>
           <attach>false</attach>
-          <attachArtifactClassifier></attachArtifactClassifier> <!-- main artifact -->
+          <attachArtifactClassifier/> <!-- main artifact -->
           <proguardInclude>src/main/assembly/proguard.conf</proguardInclude>
           <options>
             <option>-target ${maven.compiler.target}</option>

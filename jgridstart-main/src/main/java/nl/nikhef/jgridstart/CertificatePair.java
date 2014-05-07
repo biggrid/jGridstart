@@ -35,6 +35,8 @@ import java.util.Properties;
 import java.util.TooManyListenersException;
 import java.util.Vector;
 import java.util.logging.Logger;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 
 import nl.nikhef.jgridstart.CertificateCheck.CertificateCheckException;
 import nl.nikhef.jgridstart.ca.CA;
@@ -1283,6 +1285,28 @@ public class CertificatePair extends Properties implements ItemSelectable {
 	        return getCSR().equals(((CertificatePair)other).getCSR());
 	} catch (IOException e) { }
 	return getPath().equals(((CertificatePair)other).getPath());
+    }
+
+    /** returns either the notBefore date of the certificate or the date from
+     * the directory (e.g. for a new request).
+     */
+    protected Date getCompareDate()	{
+	// If we have a certificate, use that
+	if (cert!=null)
+	    return cert.getNotBefore();
+
+	// Try using its path: if that's empty, use current time
+	if (path==null)
+	    return new Date();
+
+	// Create format for parsing
+	SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+	try {
+	    Date date=format.parse(path.getName().substring(10,18));
+	    return date;
+	} catch(Exception e)   {
+	    return new Date();
+	}
     }
 
     /*

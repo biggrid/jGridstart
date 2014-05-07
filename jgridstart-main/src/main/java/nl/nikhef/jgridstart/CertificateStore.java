@@ -13,6 +13,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.logging.Logger;
 
 import nl.nikhef.jgridstart.osutils.FileUtils;
@@ -148,6 +150,24 @@ public class CertificateStore extends ArrayListModel<CertificatePair> implements
 	    if (!found)
 		tryAdd(f);
 	}
+	// Sort the updated store
+	sort();
+    }
+
+    /** Sort the certificates in the store in (inverse) chronological order
+     * <p>
+     * Certificates are ordered according to notBefore() time, in case there
+     * already is a certificate, otherwise, the current time is used.
+     */
+    public void sort()	{
+	logger.fine("Sorting certificate store");
+	Collections.sort(this, new Comparator<CertificatePair>() {
+	    public int compare(CertificatePair c1, CertificatePair c2) {
+		Date d1=c1.getCompareDate(),d2=c2.getCompareDate();
+		// Compare in inverse chronological order
+		return d2.compareTo(d1);
+	    }
+	});
     }
 
     /** refresh the certificate list from its source and each certificate as well */
@@ -351,6 +371,8 @@ public class CertificateStore extends ArrayListModel<CertificatePair> implements
 	    // rename directory to one that matches the certificate
 	    moveProper(cert);
 	    add(cert);
+	    // sort the updated store
+	    sort();
 	    return cert;
 	} catch(IOException e) {
 	    deletePath(dst);
@@ -406,6 +428,8 @@ public class CertificateStore extends ArrayListModel<CertificatePair> implements
 	try {
 	    CertificatePair cert = CertificatePair.generateRequest(dst, p);
 	    add(cert);
+	    // sort the updated store
+	    sort();
 	    return cert;
 	} catch(IOException e) {
 	    deletePath(dst);
@@ -423,6 +447,8 @@ public class CertificateStore extends ArrayListModel<CertificatePair> implements
 	try {
 	    CertificatePair cert = CertificatePair.generateRequest(dst, p, pw);
 	    add(cert);
+	    // sort the updated store
+	    sort();
 	    return cert;
 	} catch(IOException e) {
 	    deletePath(dst);

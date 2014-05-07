@@ -140,10 +140,18 @@ public class JGSFrame extends JFrame {
 	// load certificates from default location
 	store.load();
 
-	// select first certificate if present
-	// TODO select default certificate
-	if (store.size() > 0)
-	    selection.setSelection(0);
+	// Setup the identity menu and add the change listeners
+	setupIdentityMenu();
+
+	// select default certificate if present, otherwise use first one
+	if (store.size() > 0)	{
+	    try {
+		selection.setSelection(store.getDefault());
+	    } catch (IOException e) {
+		/* Cannot get default, leave it */
+		selection.setSelection(0);
+	    }
+	}
 	// show certificate list only if multiple certificates present
 	setViewCertificateList(store.size() > 1);
 	// make sure ui is up-to-date
@@ -190,7 +198,6 @@ public class JGSFrame extends JFrame {
 	    menu.add(new JMenuItem(getAction("request")));
 	    menu.add(new JMenuItem(getAction("import")));
 	    menu.addSeparator();
-	    // setupIdentityMenu() add entries here
 	    identityIndex = menu.getMenuComponentCount();
 	    identityMenu = menu;
 	    identityButtonGroup = new ButtonGroup();
@@ -199,7 +206,8 @@ public class JGSFrame extends JFrame {
 	    menu.add(identitySeparator);
 	    menu.add(new JMenuItem(new ActionQuit(this)));
 	    jMenuBar.add(menu);
-	    setupIdentityMenu();
+	    // Note: we delay setting up the listeners in setupIdentityMenu()
+	    // till after we have loaded and sorted the list
 
 	    // menu: Certificate
 	    menu = new JMenu("Actions");
@@ -244,39 +252,60 @@ public class JGSFrame extends JFrame {
      * listening to events and updating the menu.
      */
     protected void setupIdentityMenu() {
+	// Initialize the ctrl-<number> shortcut entries: Add all certs
+	// currently in store, only if there is more than one
+	int size=store.size();
+	if (size > 1) {
+	    for (int index=0; index<size; index++)	{
+		CertificatePair cert = store.get(index);
+		Action action = new ActionSelectCertificate(JGSFrame.this, cert, selection);
+		if (index<9)
+		    action.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control "+(index+1)));
+		JRadioButtonMenuItem jrb = new JRadioButtonMenuItem(action);
+		identityButtonGroup.add(jrb);
+		identityMenu.insert(jrb, identityIndex + index);
+	    }
+	    setViewCertificateList(true);
+	}
+
+	// Now add the change listeners
 	store.addListDataListener(new ListDataListener() {
 	    // only single indices supported
 	    public void intervalAdded(ListDataEvent e) {
 		// TODO use SwingUtilities.invokeLater; problem with non-final ListDataEvent e
 		int index = e.getIndex0();
-		if (index < 0) return;
+		if (index < 0)
+		    return;
+
 		// add item to menu if two or more items
-		if (store.size() > 1) {
-		    // if second item, also add first item and separator
-		    if (store.size() == 2 && index == 1) {
-			identitySeparator.setVisible(true);
-			intervalAdded(new ListDataEvent(e.getSource(), e.getType(), 0, 0));
-		    }
-		    // then add this item
-		    CertificatePair cert = store.get(index);
-		    Action action = new ActionSelectCertificate(JGSFrame.this, cert, selection);
-		    if (index<9)
-			action.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control "+(index+1)));
-		    JRadioButtonMenuItem jrb = new JRadioButtonMenuItem(action);
-		    //jrb.setText(cert.toString());
-		    identityButtonGroup.add(jrb);
-		    identityMenu.insert(jrb, identityIndex + index);
-		    // show certificate list if we went from 1 to 2 certificates
-		    if (store.size() == 2)
-			setViewCertificateList(true);
+		int size = store.size();
+		if (size < 2) // Only one entry: return
+		    return;	
+
+		// if second item, also add first item and separator
+		if (size == 2 && index == 1) {
+		    identitySeparator.setVisible(true);
+		    intervalAdded(new ListDataEvent(e.getSource(), e.getType(), 0, 0));
 		}
+		// then add this item
+		CertificatePair cert = store.get(index);
+		Action action = new ActionSelectCertificate(JGSFrame.this, cert, selection);
+		if (index<9)
+		    action.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control "+(index+1)));
+		JRadioButtonMenuItem jrb = new JRadioButtonMenuItem(action);
+		//jrb.setText(cert.toString());
+		identityButtonGroup.add(jrb);
+		identityMenu.insert(jrb, identityIndex + index);
+		// show certificate list if we went from 1 to 2 certificates
+		if (size == 2)
+		    setViewCertificateList(true);
 	    }
 	    public void intervalRemoved(ListDataEvent e) {
 		// TODO use SwingUtilities.invokeLater; problem with non-final ListDataEvent e
 		// remove item from menu
 		int index = e.getIndex0();
 		if (index < 0) return;
-		JMenuItem item = identityMenu.getItem(identityIndex + e.getIndex0());
+		JMenuItem item = identityMenu.getItem(identityIndex + index);
 		// select previous index if it was currently selected
 		if (item.isSelected()) {
 		    int newIdx = index - 1;
@@ -293,7 +322,30 @@ public class JGSFrame extends JFrame {
 		}
 	    }
 	    public void contentsChanged(ListDataEvent e) {
-		// TODO update entry
+		// This is not a very nice way of doing it, as we recreate the
+		// list each time the contents has changed, and that might be
+		// many times during a sort()
+		int size=store.size();
+		if (size<2) return;
+
+		// Remove existing list
+		for (int index=0; index<size; index++)  {
+		    // Keep removing the first entry until the list is empty
+		    JMenuItem item = identityMenu.getItem(identityIndex);
+		    identityButtonGroup.remove(item);
+		    identityMenu.remove(item);
+		}
+
+		// Create new list
+		for (int index=0; index<size; index++)	{
+		    CertificatePair cert = store.get(index);
+		    Action action = new ActionSelectCertificate(JGSFrame.this, cert, selection);
+		    if (index<9)
+			action.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("control "+(index+1)));
+		    JRadioButtonMenuItem jrb = new JRadioButtonMenuItem(action);
+		    identityButtonGroup.add(jrb);
+		    identityMenu.insert(jrb, identityIndex + index);
+		}
 	    }
 	});
     }

@@ -98,8 +98,10 @@ public class CertificateCheck {
 	    if (o==null)
 		fail("Private key file contains no private key", f);
 	} catch (Exception e) {
-	    if (!PasswordCache.isPasswordNotSuppliedException(e) && !PasswordCache.isPasswordCancelledException(e))
+	    if (!PasswordCache.isPasswordNotSuppliedException(e) && !PasswordCache.isPasswordCancelledException(e)) {
+		logger.warning("Check failed: "+e.toString());
 		throw new CertificateCheckException(e);
+	    }
 	}
     }
 

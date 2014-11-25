@@ -372,7 +372,9 @@ public class PasswordCache {
     /** TODO document */
     public static boolean isPasswordNotSuppliedException(Throwable e) {
 	if (e.getMessage()==null) return false;
-	return e.getMessage().contains("No password finder specified");
+	// Note: we can get either of these
+	return (e.getMessage().contains("No password finder specified") || 
+	        e.getMessage().contains("no PasswordFinder specified"));
     }
     /** @see #isPasswordNotSuppliedException(Throwable) */
     public static boolean isPasswordNotSuppliedException(Exception e) {

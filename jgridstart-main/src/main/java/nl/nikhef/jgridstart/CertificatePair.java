@@ -1020,7 +1020,18 @@ public class CertificatePair extends Properties implements ItemSelectable {
 	
 	for (int i=0; i<3 && key==null; i++) {
 	    try {
-		key = ((KeyPair)PEMReader.readObject(keyFile, KeyPair.class, msg)).getPrivate();
+		Object obj=PEMReader.readObject(keyFile, KeyPair.class, msg);
+		// Check first if obj exists, or we'll get a NullPointer
+		if (obj==null)	{
+		    logger.warning("Error: reading PEM private key failed for "+keyFile.toString());
+		    key=null;
+		}
+		else	{
+		    // Check if we can get the private key
+		    key=((KeyPair)obj).getPrivate();
+		    if (key==null)
+			logger.warning("Error: could not get private key from PEM file "+keyFile.toString());
+		}
 	    } catch (IOException e) {
 		if (!PasswordCache.isPasswordWrongException(e))
 		    throw e;

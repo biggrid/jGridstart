@@ -467,15 +467,16 @@ public class CertificateStore extends ArrayListModel<CertificatePair> implements
      * for new private key as a renewal from an existing certificate.
      * 
      * @param oldCert certificate to renew
+     * @param p Properties to use for generation
      * @param pw password to use for new private key
      */
-    public CertificatePair generateRenewal(CertificatePair oldCert, char[] pw) throws IOException, GeneralSecurityException, PasswordCancelledException, CAException, CertificateCheckException {
+    public CertificatePair generateRenewal(CertificatePair oldCert, Properties p, char[] pw) throws IOException, GeneralSecurityException, PasswordCancelledException, CAException, CertificateCheckException {
 	// ask for private key first, cancel would skip everything
 	PrivateKey oldKey = oldCert.getPrivateKey();
 	oldCert.check(true);
-	
 	// generate request
-	CertificatePair newCert = generateRequest(oldCert, pw);
+	// TODO: use properties from oldCert when Properties are missing
+	CertificatePair newCert = generateRequest(p, pw);
 	try {
 	    newCert.setProperty("renewal", "true");
 	    newCert.setProperty("renewal.parent.path", oldCert.getProperty("path"));
@@ -499,10 +500,26 @@ public class CertificateStore extends ArrayListModel<CertificatePair> implements
     
     /** Renew a certificate
      * 
-     * @see #generateRenewal(CertificatePair, char[])
+     * @see #generateRenewal(CertificatePair, Properties, char[])
+     */
+    public CertificatePair generateRenewal(CertificatePair oldCert, Properties p) throws PasswordCancelledException, IOException, GeneralSecurityException, CAException, CertificateCheckException {
+	return generateRenewal(oldCert, p, null);
+    }
+
+    /** Renew a certificate
+     * 
+     * @see #generateRenewal(CertificatePair, Properties, char[])
+     */
+    public CertificatePair generateRenewal(CertificatePair oldCert, char[] pw) throws PasswordCancelledException, IOException, GeneralSecurityException, CAException, CertificateCheckException {
+	return generateRenewal(oldCert, oldCert, pw);
+    }
+
+    /** Renew a certificate
+     * 
+     * @see #generateRenewal(CertificatePair, Properties, char[])
      */
     public CertificatePair generateRenewal(CertificatePair oldCert) throws PasswordCancelledException, IOException, GeneralSecurityException, CAException, CertificateCheckException {
-	return generateRenewal(oldCert, null);
+	return generateRenewal(oldCert, oldCert, null);
     }
 
     /** Checks whether given certificate is already in store

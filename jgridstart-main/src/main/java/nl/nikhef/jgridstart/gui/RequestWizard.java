@@ -209,9 +209,12 @@ public class RequestWizard extends TemplateWizard implements TemplateWizard.Page
 		// parse fields from dn if needed
 		CertificateRequest.completeData(certParent);
 		CertificateRequest.preFillData(data(), certParent);
-		// cannot edit fields for renewal; except email!!!
+		// cannot edit fields for renewal; except email, keysize and
+		// sigalgname !!!
 		CertificateRequest.postFillDataLock(data());
 		data().setProperty("email.lock", Boolean.toString(false));
+		data().setProperty("keysize.lock", Boolean.toString(false));
+		data().setProperty("sigalgname.lock", Boolean.toString(false));
 		data().setProperty("agreecps.lock", Boolean.toString(false));
     	    	data().setProperty("wizard.title", "Renew a certificate");
 	    }
@@ -550,7 +553,11 @@ public class RequestWizard extends TemplateWizard implements TemplateWizard.Page
 			 newCert = store.generateRequest(p, p.getProperty("password1").toCharArray());
 		    } else {
 			p.setProperty("subject", certParent.getProperty("subject"));
-			newCert = store.generateRenewal(certParent, p.getProperty("password1").toCharArray());
+			// NOTE: we need to pass the old certificate and the
+			// *NEW* properties separately, i.e. not blindly use the
+			// properties from the certParent: it would prevent
+			// renewing old (<2048 based) certificates
+			newCert = store.generateRenewal(certParent, p, p.getProperty("password1").toCharArray());
 		    }
 		    // clear password
 		    p.remove("password1");

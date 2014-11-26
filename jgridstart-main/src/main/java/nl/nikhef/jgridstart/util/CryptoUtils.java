@@ -114,7 +114,7 @@ public class CryptoUtils {
      * Example output:
      * <code>
      * MIME-Version: 1.0
-     * Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha1; 
+     * Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha256; 
      * 	boundary="----=_Part_1_190331520.1253198584335"
      * 
      * ------=_Part_1_190331520.1253198584335
@@ -137,7 +137,7 @@ public class CryptoUtils {
      */
     public static String SignSMIME(String msg, PrivateKey key, X509Certificate cert) throws GeneralSecurityException, SMIMEException, IOException {
 	try {
-	    ContentSigner sigGen = new JcaContentSignerBuilder("SHA1withRSA").setProvider("BC").build(key);
+	    ContentSigner sigGen = new JcaContentSignerBuilder("SHA256withRSA").setProvider("BC").build(key);
 	    JcaX509CertificateHolder certHolder = new JcaX509CertificateHolder(cert);
 	    
 	    // BC 1.46 appears to require "\r\n" line-endings
@@ -164,7 +164,7 @@ public class CryptoUtils {
 	
 	    return
 		"MIME-Version: 1.0\r\n" +
-		"Content-Type: multipart/signed; protocol=\"application/pkcs7-signature\"; micalg=sha1; boundary=\""+mimeboundary+"\"\r\n" +
+		"Content-Type: multipart/signed; protocol=\"application/pkcs7-signature\"; micalg=sha256; boundary=\""+mimeboundary+"\"\r\n" +
 		"\r\n" +
 		"--" + mimeboundary + "\r\n" +
 		tosign + "\r\n" +

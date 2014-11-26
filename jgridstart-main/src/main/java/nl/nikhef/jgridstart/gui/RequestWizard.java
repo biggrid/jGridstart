@@ -339,19 +339,20 @@ public class RequestWizard extends TemplateWizard implements TemplateWizard.Page
 	    }
 
 	    // make sure password is according to policy
+	    String pw=data().getProperty("password1");
 	    try {
-		if (data().getProperty("password1")==null)
+		if (pw==null || pw.length()==0 )
 		    throw new InvalidKeyException("Please supply a password");
-		CertificateRequest.validatePassword(data().getProperty("password1"), true);
+		CertificateRequest.validatePassword(pw, true);
 	    } catch (InvalidKeyException e) {
 		JOptionPane.showMessageDialog(this,
-			"The password must conform to the policy:\n"+e.getLocalizedMessage(),
+			"Invalid password:\n"+e.getLocalizedMessage(),
 			"Password too simple", JOptionPane.ERROR_MESSAGE);
 		return false;
 	    }
 	    // question that can be answered with yes or no at the end
 	    try {
-		CertificateRequest.validatePassword(data().getProperty("password1"), false);
+		CertificateRequest.validatePassword(pw, false);
 	    } catch (InvalidKeyException e) {
 		String msg = System.getProperty("jgridstart.password.explanation");
 		if (msg==null) msg = e.getLocalizedMessage();
@@ -362,8 +363,16 @@ public class RequestWizard extends TemplateWizard implements TemplateWizard.Page
 		if (ret != JOptionPane.OK_OPTION)
 		    return false;
 	    }
-	}
 	
+	    // make sure we agree to the CA policy
+	    if (!data().getProperty("agreecps").equals("true"))	{
+		JOptionPane.showMessageDialog(this,
+			"You first have to agree with the CA privacy policy.",
+			"Missing CPS confirmation", JOptionPane.ERROR_MESSAGE);
+		return false;
+	    }
+	}
+
 	// set organisation info if not present
 	if (data().getProperty("org.ras")==null) {
 	    Organisation org = Organisation.get(data().getProperty("org"));

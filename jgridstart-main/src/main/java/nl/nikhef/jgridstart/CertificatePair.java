@@ -815,18 +815,27 @@ public class CertificatePair extends Properties implements ItemSelectable {
 	CertificatePair cert = new CertificatePair();
 	cert.path = dst;
 
+	// Signature algorithm: try supplied properties
 	String sigAlgName = p.getProperty("sigalgname");
-	if (sigAlgName==null) sigAlgName = System.getProperty("jgridstart.sigalgname");
-	if (sigAlgName==null) sigAlgName = "SHA1WithRSA";
-	
-	String keyAlgName = p.getProperty("keyalgname");
-	keyAlgName = System.getProperty("jgridstart.keyalgname");
-	if (keyAlgName==null) keyAlgName = "RSA";
+	if (sigAlgName==null)	// Try system properties
+	    sigAlgName = System.getProperty("jgridstart.sigalgname");
+	if (sigAlgName==null)	// Use default
+	    sigAlgName = "SHA256WithRSA";
 
+	// Key algorithm: try supplied properties
+	String keyAlgName = p.getProperty("keyalgname");
+	if (keyAlgName==null)	// Try system properties
+	    keyAlgName = System.getProperty("jgridstart.keyalgname");
+	if (keyAlgName==null)	// Use default
+	    keyAlgName = "RSA";
+
+	// Key size: set default when no properties set it
 	int keysize = 2048;
 	if (p.getProperty("keysize")!=null)
+	    // Use supplied properties
 	    keysize = Integer.valueOf(p.getProperty("keysize"));
 	else if (System.getProperty("jgridstart.keysize")!=null)
+	    // Use system properties
 	    keysize = Integer.valueOf(System.getProperty("jgridstart.keysize"));
 
 	// need comma-notation, so convert if slash-notation

@@ -50,7 +50,13 @@ public class PEMWriter extends org.bouncycastle.openssl.PEMWriter {
     
     /** Write object to PEM encrypted specifying algorithm */
     public void writeObject(Object obj, String algorithm, PasswordFinder pwf) throws NoSuchAlgorithmException, IOException {
-	final SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+	// Best to call SecureRandom() instead of getInstance, such that we can
+	// get the best available algorithm, e.g. NativePRNG corresponding to
+	// /dev/(u)random on Linux, when available, instead of built-in
+	// SHA1PRNG).
+	final SecureRandom random = new SecureRandom();
+	// Call nextBytes to force seeding it
+	random.nextBytes(new byte[1]);
 	char[] pw = pwf.getPassword();
 	if (pw==null) throw new PasswordCancelledException();
 	writeObject(obj, algorithm, pw, random);

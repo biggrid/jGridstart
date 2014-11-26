@@ -52,8 +52,7 @@
             <includes><include>nl.nikhef.jgridstart:jgridstart-wrapper</include></includes>
           </dependencies>
 <!-- Uncomment this to use signing with trivial self-signed cert -->
-<!--        
-          <sign>
+          <!--sign>
 	    <keystore>${project.build.directory}/keystore</keystore>
             <keypass>123password</keypass>
             <storepass>123password</storepass>
@@ -67,17 +66,14 @@
               <delete>true</delete>
               <gen>true</gen>
             </keystoreConfig>
-          </sign>
--->
+          </sign-->
 <!-- Uncomment this to use signing from settings -->
-<!--
-          <sign>
+          <!--sign>
 	    <keystore>${codesigning.keystore}</keystore>
 	    <storetype>${codesigning.storetype}</storetype>
 	    <storepass>${codesigning.storepass}</storepass>
 	    <alias>${codesigning.alias}</alias>
-          </sign>
--->
+          </sign-->
 	</configuration>
       </plugin>
 

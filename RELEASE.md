@@ -18,10 +18,10 @@ This would involve the following steps:
    number. Also update the version number where these are used as dependencies.
 
    If you just changed `jgridstart-main`, you can run the following commands
-   (using [xmlstarlet]) to update the relevant modules to version x.y:
+   (using [xmlstarlet]) to update the relevant modules to version x.y (e.g. 1.15):
 
         VERSION=x.y
-        xmlstarlet ed -P -L -N m=http://maven.apache.org/POM/4.0.0 \
+        xml ed -P -L -N m=http://maven.apache.org/POM/4.0.0 \
             -u "/m:project/m:version" -v "$VERSION" \
             -u "/m:project/m:dependencies/m:dependency[child::m:groupId='nl.nikhef.jgridstart' \
                         and starts-with(child::m:artifactId,'jgridstart-')]/m:version" -v "$VERSION" \
@@ -32,30 +32,51 @@ This would involve the following steps:
 
    To view the version numbers of all modules, you use the following command:
    
-       xmlstarlet sel -N m=http://maven.apache.org/POM/4.0.0 -t -f -o ' ' -v /m:project/m:version */pom.xml
+        xml sel -N m=http://maven.apache.org/POM/4.0.0 -t -f -o ' ' -v /m:project/m:version */pom.xml
 
 
-3. *Create final version*
-   by running `mvn clean install` from the project's root.
+3. *Create final version and sign resulting JAR.*
+   You can either first create the jar file, and then sign it using jarsigner, or do both combined:
+   1. *Separate building and signing.*
+      First create the final version by running from the project's root:
 
+          mvn clean install
+     
+      Now sign the resulting jar file using [jarsigner]:
 
-4. *Sign resulting JAR*
-   using a commercial code-signing certificate, so that users know they are
-   relatively safe running the code. This is important, since jGridstart
-   requires full access to the system and won't work without a signed JAR.
-   You can use [jarsigner]:
+          jarsigner -keystore /my/codecert.jks jgridstart-jws/target/jnlp/jgridstart-wrapper-x.y.jar store_entry_name
+        
+      Now `jgridstart-wrapper-x.y.jar` is ready for deployment.
+   2. *Do all combined via mvn.*
+      Make sure you have a `$HOME/.m2/settings.xml' file containing something like:
 
-       jarsigner -keystore /my/codecert.jks jgridstart-jws/target/jnlp/jgridstart-wrapper-x.y.jar store_entry_name
+          <settings>
+            <profiles>
+            <profile>
+                <id>codesigning</id>
+                <properties>
+                  <codesigning.keystore>PATH_TO_P12_STORE</codesigning.keystore>
+                  <codesigning.storetype>pkcs12</codesigning.storetype>
+                  <codesigning.storepass>MYPASSWORD</codesigning.storepass>
+                  <codesigning.alias>CERT_ALIAS</codesigning.alias>
+                </properties>
+              </profile>
+            </profiles>
+          </settings>
+          
+      where `PATH_TO_P12_STORE`, `MYPASSWORD` and `CERT_ALIAS` must be replaced with the appropriate values.
+      Then enable the `<sign>` blob in the `jgridstart-jws/pom.xml` file and run from the project's root:
+  
+          mvn -P codesigning clean install
 
-   Now `jgridstart-wrapper-x.y.jar` is ready for deployment.
+      Now `jgridstart-wrapper-x.y.jar` is ready for deployment.
 
-
-5. *Upload release.*
+4. *Upload release.*
    Each release is uploaded to http://jgridstart.nikhef.nl/release/x.y .
    Update the URL locations in the JNLP so that it works from there:
 
-       cd jgridstart-jws/target/jnlp
-       sh deploy.sh http://jgridstart.nikhef.nl/release/x.y
+        cd jgridstart-jws/target/jnlp
+        sh deploy.sh http://jgridstart.nikhef.nl/release/x.y
 
    Then copy all files found in `jgridstart-jws/target/jnlp` to the location.
 
@@ -65,26 +86,26 @@ This would involve the following steps:
    directory, which puts the API documentation from all modules into
    `target/site/apidocs`:
 
-       TITLE='jGridstart top-level x.y API'
-       mvn javadoc:aggregate -Ddoctitle="$TITLE" -Dwindowtitle="$TITLE"
+        TITLE='jGridstart top-level x.y API'
+        mvn javadoc:aggregate -Ddoctitle="$TITLE" -Dwindowtitle="$TITLE"
 
    Now publish it on Github using the gh-pages branch, assuming that once exists
    ([create](https://help.github.com/articles/creating-project-pages-manually)
    a new orphaned branch, if not):
 
-       git checkout gh-pages
-       rm -Rf javadoc
-       mv target/site/apidocs javadoc
-       git add javadoc
-       git commit -m 'release documentation for jGridstart x.y' -a
-       git push
+        git checkout gh-pages
+        rm -Rf javadoc
+        mv target/site/apidocs javadoc
+        git add javadoc
+        git commit -m 'release documentation for jGridstart x.y' -a
+        git push
 
 
 7. *Update the Wiki.*
    http://jgridstart.nikhef.nl/Releases contains a list of jGridstart's
    releases. Add a new entry, make sure the links point to the correct release
    location; review source code history and add changes relevant for users and
-   CAs (with bug links when present).
+   CAs (with bug links when present).  
    Also update http://jgridstart.nikhef.nl/Test to point to the new release.
 
 

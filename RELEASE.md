@@ -44,8 +44,16 @@ This would involve the following steps:
      
       Now sign the resulting jar file using [jarsigner]:
 
-          jarsigner -keystore /my/codecert.jks jgridstart-jws/target/jnlp/jgridstart-wrapper-x.y.jar store_entry_name
-        
+          jarsigner -tsa TIMESTAMP_URL -keystore /my/codecert.jks jgridstart-jws/target/jnlp/jgridstart-wrapper-x.y.jar store_entry_name
+
+      where TIMESTAMP_URL depends on the codesigning CA; for COMODO, it is
+	  
+	      http://timestamp.comodoca.com/authenticode
+		  
+      whereas for DigiCert it is
+	  
+	      http://timestamp.digicert.com
+      
       Now `jgridstart-wrapper-x.y.jar` is ready for deployment.
    2. *Do all combined via mvn.*
       Make sure you have a `$HOME/.m2/settings.xml' file containing something like:

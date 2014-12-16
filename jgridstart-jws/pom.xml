@@ -67,15 +67,35 @@
               <gen>true</gen>
             </keystoreConfig>
           </sign-->
-<!-- Uncomment this to use signing from settings -->
-          <!--sign>
-	    <keystore>${codesigning.keystore}</keystore>
-	    <storetype>${codesigning.storetype}</storetype>
-	    <storepass>${codesigning.storepass}</storepass>
-	    <alias>${codesigning.alias}</alias>
-          </sign-->
 	</configuration>
       </plugin>
+
+      <!-- signing -->
+<!-- START Uncomment this to use signing from settings -->
+      <!--plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jarsigner-plugin</artifactId>
+        <version>1.3</version>
+        <executions>
+          <execution>
+            <id>sign</id>
+            <phase>install</phase>
+            <goals><goal>sign</goal></goals>
+          </execution>
+        </executions>
+        <configuration>
+          <archiveDirectory>target/jnlp</archiveDirectory>
+          <includes>
+            <include>jgridstart-wrapper-${version}.jar</include>
+          </includes>
+          <keystore>${codesigning.keystore}</keystore>
+          <storetype>${codesigning.storetype}</storetype>
+          <storepass>${codesigning.storepass}</storepass>
+          <alias>${codesigning.alias}</alias>
+          <tsa>${codesigning.tsa_url}</tsa>
+        </configuration>
+      </plugin-->
+<!-- END Uncomment this to use signing from settings -->
 
       <!-- ordinary testing is done already in build step, skip now -->
       <plugin>

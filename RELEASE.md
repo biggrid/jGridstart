@@ -67,12 +67,13 @@ This would involve the following steps:
                   <codesigning.storetype>pkcs12</codesigning.storetype>
                   <codesigning.storepass>MYPASSWORD</codesigning.storepass>
                   <codesigning.alias>CERT_ALIAS</codesigning.alias>
+                  <codesigning.tsa_url>TIMESTAMP_URL</codesigning.tsa_url>
                 </properties>
               </profile>
             </profiles>
           </settings>
           
-      where `PATH_TO_P12_STORE`, `MYPASSWORD` and `CERT_ALIAS` must be replaced with the appropriate values.
+      where `PATH_TO_P12_STORE`, `MYPASSWORD`, `CERT_ALIAS` and `TIMESTAMP_URL` must be replaced with the appropriate values.
       Then enable the `<sign>` blob in the `jgridstart-jws/pom.xml` file and run from the project's root:
   
           mvn -P codesigning clean install

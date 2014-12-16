@@ -48,7 +48,7 @@ This would involve the following steps:
 
       where TIMESTAMP_URL depends on the codesigning CA; for COMODO, it is
 	  
-	      http://timestamp.comodoca.com/authenticode
+	      http://timestamp.comodoca.com/rfc3161
 		  
       whereas for DigiCert it is
 	  

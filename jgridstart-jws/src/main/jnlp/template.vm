@@ -12,9 +12,11 @@
  <resources>
   <!-- program defaults, customize these for your site (properties are prefixed
        with "jnlp." to avoid the need for a signed jnlp) -->
+  <!--
   <property name="jnlp.jgridstart.defaults.country" value="NL"/>
   <property name="jnlp.jgridstart.defaults.level" value="medium"/>
   <property name="jnlp.jgridstart.org.href" value="cert_signup.conf"/>
+  -->
   <!-- end of program defaults -->
   <j2se href="http://java.sun.com/products/autodl/j2se" version="${j2seVersion}"/>
 ${dependencies}

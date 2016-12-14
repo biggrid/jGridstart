@@ -1,0 +1,6 @@
+{
+  "name": "JGridstart",
+  "tagline": "Friendly certificate management for end-users of grid computing infrastructures.",
+  "body": "### JGridstart\r\nGet started with the grid easily. jGridstart helps grid end-users to request, obtain, install and renew grid certificates in a friendly way.\r\n\r\nSee http://wiki.nikhef.nl/grid/JGridstart\r\n\r\n### Javadoc\r\n[jGridstart javadoc](javadoc/)\r\n",
+  "note": "Don't delete this file! It's used internally to help with page regeneration."
+}

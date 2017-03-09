@@ -78,7 +78,10 @@ This would involve the following steps:
   
           mvn -P codesigning clean install
 
-      Now `jgridstart-wrapper-x.y.jar` is ready for deployment.
+      Now `jgridstart-jws/target/jnlp/jgridstart-wrapper-x.y.jar` is ready for
+      deployment.
+      *Note*: verify the created jar file using jarsigner -verify (use -verbose
+      to get details if something is wrong).
 
 4. *Upload release.*
    Each release is uploaded to http://jgridstart.nikhef.nl/release/x.y .

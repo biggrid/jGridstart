@@ -137,6 +137,7 @@
           <!-- <detectLinks>true</detectLinks> --> <!-- http://jira.codehaus.org/browse/MJAVADOC-273 -->
           <detectLinks>true</detectLinks>
           <detectJavaApiLink>true</detectJavaApiLink>
+	  <additionalJOption>--add-exports java.desktop/sun.awt=ALL-UNNAMED</additionalJOption>
           <links>
             <link>http://www.bouncycastle.org/docs/docs1.5on/</link>
             <link>http://www.bouncycastle.org/docs/mdocs1.5on/</link>

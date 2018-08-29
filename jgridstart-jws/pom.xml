@@ -72,7 +72,7 @@
 
       <!-- signing -->
 <!-- START Uncomment this to use signing from settings -->
-      <!--plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jarsigner-plugin</artifactId>
         <version>1.3</version>
@@ -86,7 +86,7 @@
         <configuration>
           <archiveDirectory>target/jnlp</archiveDirectory>
           <includes>
-            <include>jgridstart-wrapper-${version}.jar</include>
+            <include>jgridstart-wrapper-${project.version}.jar</include>
           </includes>
           <keystore>${codesigning.keystore}</keystore>
           <storetype>${codesigning.storetype}</storetype>
@@ -94,7 +94,7 @@
           <alias>${codesigning.alias}</alias>
           <tsa>${codesigning.tsa_url}</tsa>
         </configuration>
-      </plugin-->
+      </plugin>
 <!-- END Uncomment this to use signing from settings -->
 
       <!-- ordinary testing is done already in build step, skip now -->

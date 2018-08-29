@@ -66,6 +66,14 @@
       <artifactId>swing-worker</artifactId>
       <version>1.1</version>
     </dependency>
+    <!-- for Oracle JDK10, need xml-apis at runtime
+         to find org/w3c/dom/css/CSSPrimitiveValue -->
+    <dependency>
+      <groupId>xml-apis</groupId>
+      <artifactId>xml-apis</artifactId>
+      <version>1.4.01</version>
+      <scope>runtime</scope>
+    </dependency>
     <dependency>
       <groupId>nl.nikhef</groupId>
       <artifactId>xhtmlrenderer</artifactId>

@@ -116,6 +116,7 @@
       </plugin>
 
       <!-- ProGuard to minimise resulting file size -->
+      <?ignore TEMPORARILY DISABLE proguard SINCE IT DOES NOT LIKE JDK10
       <plugin>
         <groupId>com.github.wvengen</groupId>
         <artifactId>proguard-maven-plugin</artifactId>
@@ -155,6 +156,7 @@
           </inFilter>
         </configuration>
       </plugin>
+      ?>
       
       <!-- ordinary testing is done already in build step, skip now -->
       <plugin>
